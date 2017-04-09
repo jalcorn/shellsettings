@@ -4,8 +4,7 @@ SCRIPT_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 echo $SCRIPT_PATH
 
 # Copy ZSH config
-local diff_count=$(diff $SCRIPT_PATH/zshrc ~/.zshrc | wc -l)
-if [[ $diff_count -gt 0 ]]; then
+if [[ $(diff $SCRIPT_PATH/zshrc ~/.zshrc | wc -l) -gt 0 ]]; then
   echo "updating .zshrc file"
   local cur_date="$(date +'%Y-%m-%d-%H:%M:%S')"
   cp ~/.zshrc ~/.zshrc.bak-$cur_date
