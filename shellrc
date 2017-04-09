@@ -21,7 +21,6 @@ if [ -n "$ZSH_VERSION" ]; then
   alias L='ls -hal '
 
   alias src='source ~/.zshrc'
-  alias prof='gedit ~/.zshrc'
 elif [ -n "$BASH_VERSION" ]; then
   # Some fun colors for the terminal
   # Regular Colors
@@ -39,14 +38,11 @@ elif [ -n "$BASH_VERSION" ]; then
 
   # assume Bash
   alias src='source ~/.bashrc'
-  alias prof='gedit ~/.bashrc'
 fi
 
 # mac ip stuff
 alias getip='ifconfig en0 | grep "inet.*netmask" | cut -d " " -f 2 | tr -d "\n"'
-alias newip='ip=`getip`;echo $ip;`replaceserverip`;`replaceproxyip`'
 
-alias gsi='git submodule init'
 alias gsync='git submodule sync'
 alias gpush='git push josh $(cur_git_branch)'
 alias gsu='git submodule update --init --recursive'
@@ -57,11 +53,12 @@ alias gsp='git stash pop'
 alias gsd='git stash drop'
 alias gco='git checkout'
 alias gp='git pull --ff-only upstream $(cur_git_branch)'
-alias gpd='git pull --ff-only upstream develop'
 alias gpr='git pull --rebase upstream $(cur_git_branch)'
 alias gd='git diff'
 alias gdc='git diff --cached'
-alias gh='git help'
 alias gb='git branch'
 alias gcm='git commit -m'
 alias gl='git log --date=short --format="%Cred%h %Cgreen%ad %<(16,trunc)%Cblue%an %Creset%s %Cred"'
+
+export VISUAL=vim
+export EDITOR="$VISUAL"
