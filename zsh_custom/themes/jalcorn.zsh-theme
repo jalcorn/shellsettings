@@ -85,21 +85,48 @@ prompt_git() {
   repo_path=$(git rev-parse --git-dir 2>/dev/null)
 
   if $(git rev-parse --is-inside-work-tree >/dev/null 2>&1); then
-    dirty=$(parse_git_dirty)
-    ref="$PL_BRANCH_CHAR$(basename $(git symbolic-ref HEAD 2> /dev/null) 2>/dev/null)" || ref="$PL_DETATCHED_CHAR$(git rev-parse --short HEAD 2> /dev/null)"
-    if [[ -n $dirty ]]; then
-      prompt_segment $DEFAULT_BG yellow
-    else
-      prompt_segment $DEFAULT_BG green
+    local ahead="$(git log @{u}.. --pretty=oneline | wc -l)"
+    local behind="$(git log ..@{u} --pretty=oneline | wc -l)"
+    local diverge=''
+    if [[ $ahead -gt 0 || $behind -gt 0 ]]; then
+      diverge+=" "
+    fi
+    if [[ $ahead -gt 0 ]]; then
+      diverge+="🡑"
+      if [[ $ahead -gt 1 ]]; then
+        diverge+="$ahead"
+      fi
+    fi
+    if [[ $behind -gt 0 ]]; then
+      diverge+="🡓"
+      if [[ $behind -gt 1 ]]; then
+        diverge+="$behind"
+      fi
     fi
 
+    dirty=$(parse_git_dirty)
+    ref="$PL_BRANCH_CHAR$(basename $(git symbolic-ref HEAD 2> /dev/null) 2>/dev/null)$diverge" || ref="$PL_DETATCHED_CHAR$(git rev-parse --short HEAD 2> /dev/null)"
+
+    local text_color=red
     if [[ -e "${repo_path}/BISECT_LOG" ]]; then
-      mode=" <B>"
+      mode="|Bisect"
     elif [[ -e "${repo_path}/MERGE_HEAD" ]]; then
-      mode=" >M<"
-    elif [[ -e "${repo_path}/rebase" || -e "${repo_path}/rebase-apply" || -e "${repo_path}/rebase-merge" || -e "${repo_path}/../.dotest" ]]; then
-      mode=" >R>"
+      mode="|Merge"
+    elif [[ -e "${repo_path}/rebase" ]]; then
+      mode="|Rebase"
+    elif [[ -e "${repo_path}/rebase-apply" ]]; then
+      mode="|Rebase Apply"
+    elif [[ -e "${repo_path}/rebase-merge" ]]; then
+      mode="|Rebase Merge"
+    else
+      if [[ -n $dirty ]]; then
+        text_color=yellow
+      else
+        text_color=green
+      fi
     fi
+
+    prompt_segment $DEFAULT_BG $text_color
 
     setopt promptsubst
     autoload -Uz vcs_info
@@ -112,7 +139,7 @@ prompt_git() {
     zstyle ':vcs_info:*' formats ' %u%c'
     zstyle ':vcs_info:*' actionformats ' %u%c'
     vcs_info
-    echo -n "$ref${vcs_info_msg_0_%% }${mode}"
+    echo -n "$ref${mode}${vcs_info_msg_0_%%}"
   fi
 }
 
