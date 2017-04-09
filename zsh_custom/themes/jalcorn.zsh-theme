@@ -78,15 +78,10 @@ prompt_dir() {
 # Git: branch/detached head, dirty status
 prompt_git() {
   (( $+commands[git] )) || return
-  local PL_BRANCH_CHAR='├'
-  local PL_DETATCHED_CHAR='┌'
-
-  local ref dirty mode repo_path
-  repo_path=$(git rev-parse --git-dir 2>/dev/null)
 
   if $(git rev-parse --is-inside-work-tree >/dev/null 2>&1); then
-    local ahead="$(git log @{u}.. --pretty=oneline | wc -l)"
-    local behind="$(git log ..@{u} --pretty=oneline | wc -l)"
+    local ahead="$(git log @{u}.. --pretty=oneline 2> /dev/null | wc -l)"
+    local behind="$(git log ..@{u} --pretty=oneline 2> /dev/null | wc -l)"
     local diverge=''
     if [[ $ahead -gt 0 || $behind -gt 0 ]]; then
       diverge+=" "
@@ -104,21 +99,32 @@ prompt_git() {
       fi
     fi
 
-    dirty=$(parse_git_dirty)
-    ref="$PL_BRANCH_CHAR$(basename $(git symbolic-ref HEAD 2> /dev/null) 2>/dev/null)$diverge" || ref="$PL_DETATCHED_CHAR$(git rev-parse --short HEAD 2> /dev/null)"
+    local PL_BRANCH_CHAR='├'
+    local PL_DETATCHED_CHAR='┌'
+    local head_path=$(git symbolic-ref HEAD 2> /dev/null)
+    local ref
+    if [[ $head_path ]]; then
+      ref="$PL_BRANCH_CHAR$(basename $head_path 2>/dev/null)$diverge"
+    else
+      ref="$PL_DETATCHED_CHAR$(git rev-parse --short HEAD 2> /dev/null)"
+    fi
 
     local text_color=red
+    local PL_MODE_CHAR='¦'
+    local repo_path=$(git rev-parse --git-dir 2>/dev/null)
+    local mode
     if [[ -e "${repo_path}/BISECT_LOG" ]]; then
-      mode="|Bisect"
+      mode=$PL_MODE_CHAR"Bisect"
     elif [[ -e "${repo_path}/MERGE_HEAD" ]]; then
-      mode="|Merge"
+      mode=$PL_MODE_CHAR"Merge"
     elif [[ -e "${repo_path}/rebase" ]]; then
-      mode="|Rebase"
+      mode=$PL_MODE_CHAR"Rebase"
     elif [[ -e "${repo_path}/rebase-apply" ]]; then
-      mode="|Rebase Apply"
+      mode=$PL_MODE_CHAR"Rebase Apply"
     elif [[ -e "${repo_path}/rebase-merge" ]]; then
-      mode="|Rebase Merge"
+      mode=$PL_MODE_CHAR"Rebase Merge"
     else
+      local dirty=$(parse_git_dirty)
       if [[ -n $dirty ]]; then
         text_color=yellow
       else
