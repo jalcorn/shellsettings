@@ -1,4 +1,4 @@
-# aliases
+# Common shell file to source
 
 function cur_git_branch {
   local git_branch
@@ -24,12 +24,42 @@ function source_custom_file {
 
 if [ -n "$ZSH_VERSION" ]; then
   # assume Zsh
+  export RPROMPT='$(date +%H:%M:%S)'
+
+  strlen () {
+    local input_str=$1
+    local invisible='%([BSUbfksu]|([FK]|){*})'
+    local LEN=${#${(S%%)input_str//$~invisible/}}
+    echo -n $LEN
+  }
+
+  preexec () {
+      local cur_time=$(date +"[%H:%M:%S]")
+      local len_right=$(strlen $cur_time)
+      local right_start=$(($COLUMNS - $len_right - $len_right - 1))
+
+      local len_cmd=$(strlen $@)
+      local len_prompt=$(strlen $PROMPT)
+      local len_left=$(($len_cmd + $len_prompt))
+
+      local right_cur_time="\033[${right_start}C ${cur_time}"
+
+      if [ $len_left -gt $right_start ]; then
+        echo -e "${right_cur_time}"
+      else
+        # move up one line
+        echo -e "\033[1A${right_cur_time}"
+      fi
+  }
+
   alias G='| grep '
   alias V='| grep -v '
   alias L='ls -hal '
 
   alias src='source ~/.zshrc'
 elif [ -n "$BASH_VERSION" ]; then
+  # assume Bash
+
   # Some fun colors for the terminal
   # Regular Colors
   Black='\[\e[0;30m\]'        # Black
@@ -44,7 +74,6 @@ elif [ -n "$BASH_VERSION" ]; then
   #. /usr/local/git/contrib/completion/git-completion.bash
   PS1="$Red#\# $Green\t $Blue\w$Yellow\$(__git_ps1)$Cyan\$$White "
 
-  # assume Bash
   alias src='source ~/.bashrc'
 fi
 

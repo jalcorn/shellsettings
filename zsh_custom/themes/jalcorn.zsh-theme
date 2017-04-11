@@ -160,4 +160,5 @@ build_prompt() {
   prompt_end
 }
 
+# TODO: putting this in double quotes sizes it correctly but will no longer update the git info
 PROMPT='%{%f%b%k%}$(build_prompt)'
