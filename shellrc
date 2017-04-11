@@ -62,3 +62,12 @@ alias gl='git log --date=short --format="%Cred%h %Cgreen%ad %<(16,trunc)%Cblue%a
 
 export VISUAL=vim
 export EDITOR="$VISUAL"
+
+# Custom stuff
+local_file='~/.customrc'
+if [ -f $local_file ]; then
+  echo "Sourcing local file: $local_file"
+  source $local_file
+else
+  echo "Can't find local file: $local_file"
+fi

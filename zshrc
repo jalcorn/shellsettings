@@ -86,5 +86,3 @@ source $ZSH/oh-my-zsh.sh
 
 ## CUSTOM CRAP ##
 source ~/shellsettings/shellrc
-
-export DEFAULT_USER="josh"
