@@ -49,7 +49,7 @@ prompt_status() {
   [[ $RETVAL -ne 0 ]] && symbols+="%{%F{red}%}×"
 
   # Output if background jobs are running
-  local job_count=$(jobs -l | wc -l)
+  local job_count=$(jobs -l | wc -l | tr -d '[:space:]')
   [[ $job_count -gt 0 ]] && symbols+="%{%F{cyan}%}λ"
   [[ $job_count -gt 1 ]] && symbols+="%{%F{cyan}%}$job_count"
 
@@ -80,8 +80,8 @@ prompt_git() {
   (( $+commands[git] )) || return
 
   if $(git rev-parse --is-inside-work-tree >/dev/null 2>&1); then
-    local ahead="$(git log @{u}.. --pretty=oneline 2> /dev/null | wc -l)"
-    local behind="$(git log ..@{u} --pretty=oneline 2> /dev/null | wc -l)"
+    local ahead="$(git log @{u}.. --pretty=oneline 2> /dev/null | wc -l | tr -d '[:space:]')"
+    local behind="$(git log ..@{u} --pretty=oneline 2> /dev/null | wc -l | tr -d '[:space:]')"
     local diverge=''
     if [[ $ahead -gt 0 || $behind -gt 0 ]]; then
       diverge+=" "
