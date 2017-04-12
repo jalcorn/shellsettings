@@ -109,6 +109,7 @@ prompt_git() {
       ref="$PL_DETATCHED_CHAR$(git rev-parse --short HEAD 2> /dev/null)"
     fi
 
+    local untracked_string=''
     local all_clean=()
     local text_color=red
     local PL_MODE_CHAR='¦'
@@ -128,11 +129,16 @@ prompt_git() {
       local dirty=$(parse_git_dirty)
       if [[ -n $dirty ]]; then
         text_color=yellow
+        local untracked_files=$(git status --porcelain 2>/dev/null | grep "^??" | wc -l | tr -d '[:space:]')
+        if [[ $untracked_files -gt 0 ]]; then
+          untracked_string="¿"
+        fi
       else
         text_color=green
         all_clean="value"
       fi
     fi
+
 
     prompt_segment $DEFAULT_BG $text_color
 
@@ -142,17 +148,16 @@ prompt_git() {
     zstyle ':vcs_info:*' enable git
     zstyle ':vcs_info:*' get-revision true
     zstyle ':vcs_info:*' check-for-changes true
-    zstyle ':vcs_info:*' stagedstr '±'
-    zstyle ':vcs_info:*' unstagedstr '∆'
+    zstyle ':vcs_info:*' stagedstr '•'
+    zstyle ':vcs_info:*' unstagedstr '±'
     zstyle ':vcs_info:*' formats '%u%c'
     zstyle ':vcs_info:*' actionformats '%u%c'
     vcs_info
 
-    # TODO: add symbol for untracked files
     if [[ -n $all_clean ]]; then
       echo -n "$ref${mode}${vcs_info_msg_0_%%}"
     else
-      echo -n "$ref${mode} ${vcs_info_msg_0_%%}"
+      echo -n "$ref${mode} $untracked_string${vcs_info_msg_0_%%}"
     fi
   fi
 }
