@@ -24,7 +24,7 @@ function source_custom_file {
 
 if [ -n "$ZSH_VERSION" ]; then
   # assume Zsh
-  export RPROMPT='$(date +%H:%M:%S)'
+  export RPROMPT='%{%f%F{red}%}${DISPLAY_RPROMPT_COMMAND_TIME} %{%f%F{magenta}%}$(date +%H:%M:%S)%{%f%F{default}%}'
 
   strlen () {
     local input_str=$1
@@ -33,28 +33,56 @@ if [ -n "$ZSH_VERSION" ]; then
     echo -n $LEN
   }
 
-  preexec () {
-      local cur_time=$(date +"[%H:%M:%S]")
-      local len_right=$(strlen $cur_time)
-      local right_start=$(($COLUMNS - $len_right - $len_right - 1))
+  export DISPLAY_RPROMPT_COMMAND_TIME=''
 
-      local len_cmd=$(strlen $@)
-      local len_prompt=$(strlen $PROMPT)
-      local len_left=$(($len_cmd + $len_prompt))
+  # Necessary for $EPOCHSECONDS, the UNIX time.
+  zmodload zsh/datetime
 
-      local right_cur_time="\033[${right_start}C ${cur_time}"
+  josh_last=()
+  precmd () {
+    if [[ -z $josh_last ]]; then
+      return
+    fi
 
-      if [ $len_left -gt $right_start ]; then
-        echo -e "${right_cur_time}"
-      else
-        # move up one line
-        echo -e "\033[1A${right_cur_time}"
-      fi
+    local difference=$(( $EPOCHSECONDS - $josh_last ))
+    local base_rprompt='%{%f%F{magenta}%}$(date +%H:%M:%S)%{%f%F{default}%}'
+    if [[ $difference -gt 10 ]]; then
+      DISPLAY_RPROMPT_COMMAND_TIME="∆${difference}s"
+    else
+      DISPLAY_RPROMPT_COMMAND_TIME=''
+    fi
+
+    josh_last=()
   }
 
-  alias G='| grep '
-  alias V='| grep -v '
-  alias L='ls -hal '
+  preexec () {
+    ####
+    josh_last=$EPOCHSECONDS
+    ####
+
+    local cur_time=$(date +"%H:%M:%S•")
+    local len_right=$(strlen $cur_time)
+    local len_r_prompt=$(strlen $RPROMPT)
+    local right_start=$(($COLUMNS - $len_right - 1))
+
+    local len_cmd=$(strlen $@)
+    local cleaned_prompt='$(sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g" <<< ${(S%%)PROMPT//$~invisible/})'
+    local len_prompt=$(strlen $cleaned_prompt)
+    local len_left=$(($len_cmd + $len_prompt))
+
+    local right_cur_time="\033[${right_start}C ${cur_time}"
+
+    if [ $len_left -gt $right_start ]; then
+      echo -e "${fg[cyan]}${right_cur_time}${fg[default]}"
+    else
+      # move up one line
+      echo -e "\033[1A${fg[cyan]}${right_cur_time}${fg[default]}"
+    fi
+  }
+
+  alias G="| grep "
+  alias V="| grep -v "
+  alias L="ls -hal "
 
   alias src='source ~/.zshrc'
 elif [ -n "$BASH_VERSION" ]; then

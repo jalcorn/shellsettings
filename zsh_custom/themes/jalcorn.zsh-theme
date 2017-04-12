@@ -145,6 +145,9 @@ prompt_git() {
     zstyle ':vcs_info:*' formats ' %u%c'
     zstyle ':vcs_info:*' actionformats ' %u%c'
     vcs_info
+
+    # TODO: add symbol for untracked files
+    # TODO: remove space when there are no git changes
     echo -n "$ref${mode}${vcs_info_msg_0_%%}"
   fi
 }
@@ -160,5 +163,4 @@ build_prompt() {
   prompt_end
 }
 
-# TODO: putting this in double quotes sizes it correctly but will no longer update the git info
 PROMPT='%{%f%b%k%}$(build_prompt)'
