@@ -109,6 +109,7 @@ prompt_git() {
       ref="$PL_DETATCHED_CHAR$(git rev-parse --short HEAD 2> /dev/null)"
     fi
 
+    local all_clean=()
     local text_color=red
     local PL_MODE_CHAR='¦'
     local repo_path=$(git rev-parse --git-dir 2>/dev/null)
@@ -129,6 +130,7 @@ prompt_git() {
         text_color=yellow
       else
         text_color=green
+        all_clean="value"
       fi
     fi
 
@@ -142,13 +144,16 @@ prompt_git() {
     zstyle ':vcs_info:*' check-for-changes true
     zstyle ':vcs_info:*' stagedstr '±'
     zstyle ':vcs_info:*' unstagedstr '∆'
-    zstyle ':vcs_info:*' formats ' %u%c'
-    zstyle ':vcs_info:*' actionformats ' %u%c'
+    zstyle ':vcs_info:*' formats '%u%c'
+    zstyle ':vcs_info:*' actionformats '%u%c'
     vcs_info
 
     # TODO: add symbol for untracked files
-    # TODO: remove space when there are no git changes
-    echo -n "$ref${mode}${vcs_info_msg_0_%%}"
+    if [[ -n $all_clean ]]; then
+      echo -n "$ref${mode}${vcs_info_msg_0_%%}"
+    else
+      echo -n "$ref${mode} ${vcs_info_msg_0_%%}"
+    fi
   fi
 }
 
