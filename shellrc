@@ -66,7 +66,7 @@ if [ -n "$ZSH_VERSION" ]; then
     local right_start=$(($COLUMNS - $len_right - 1))
 
     local len_cmd=$(strlen $@)
-    local cleaned_prompt='$(sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g" <<< ${(S%%)PROMPT//$~invisible/})'
+    local cleaned_prompt='$(sed -E "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g" <<< ${(S%%)PROMPT//$~invisible/})'
     local len_prompt=$(strlen $cleaned_prompt)
     local len_left=$(($len_cmd + $len_prompt))
 

@@ -80,6 +80,9 @@ prompt_git() {
   (( $+commands[git] )) || return
 
   if $(git rev-parse --is-inside-work-tree >/dev/null 2>&1); then
+    local git_status="$(git status --porcelain --branch 2> /dev/null)"
+   # local parsed_status=$git_status | grep "^##" | head -n 1 | sed -E "s/^##\s*([a-ZA-Z0-9\-\_]*)(\.\.\..*\[)?(ahead )?([0-9]*)(,?\s*behind )?([0-9]*)\]?/\1 \4 \6/g"
+
     local ahead="$(git log @{u}.. --pretty=oneline 2> /dev/null | wc -l | tr -d '[:space:]')"
     local behind="$(git log ..@{u} --pretty=oneline 2> /dev/null | wc -l | tr -d '[:space:]')"
     local diverge=''
@@ -87,13 +90,13 @@ prompt_git() {
       diverge+=" "
     fi
     if [[ $ahead -gt 0 ]]; then
-      diverge+="🡑"
+      diverge+="˄"
       if [[ $ahead -gt 1 ]]; then
         diverge+="$ahead"
       fi
     fi
     if [[ $behind -gt 0 ]]; then
-      diverge+="🡓"
+      diverge+="˅"
       if [[ $behind -gt 1 ]]; then
         diverge+="$behind"
       fi
@@ -110,7 +113,7 @@ prompt_git() {
     fi
 
     local untracked_string=''
-    local all_clean=()
+    local all_clean=1
     local text_color=red
     local PL_MODE_CHAR='¦'
     local repo_path=$(git rev-parse --git-dir 2>/dev/null)
@@ -129,13 +132,13 @@ prompt_git() {
       local dirty=$(parse_git_dirty)
       if [[ -n $dirty ]]; then
         text_color=yellow
-        local untracked_files=$(git status --porcelain 2>/dev/null | grep "^??" | wc -l | tr -d '[:space:]')
-        if [[ $untracked_files -gt 0 ]]; then
+        local untracked_files=$(echo $git_status | grep "^??")
+        if [[ ! -z $untracked_files ]]; then
           untracked_string="¿"
         fi
       else
         text_color=green
-        all_clean="value"
+        all_clean=0
       fi
     fi
 
@@ -154,7 +157,7 @@ prompt_git() {
     zstyle ':vcs_info:*' actionformats '%u%c'
     vcs_info
 
-    if [[ -n $all_clean ]]; then
+    if [[ "$all_clean" -eq 0 ]]; then
       echo -n "$ref${mode}${vcs_info_msg_0_%%}"
     else
       echo -n "$ref${mode} $untracked_string${vcs_info_msg_0_%%}"
