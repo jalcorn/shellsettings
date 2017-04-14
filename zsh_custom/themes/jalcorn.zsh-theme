@@ -93,7 +93,6 @@ prompt_git() {
   (( $+commands[git] )) || return
 
   if $(git rev-parse --is-inside-work-tree >/dev/null 2>&1); then
-    local git_status="$(git status --porcelain --branch 2> /dev/null)"
    # local parsed_status=$git_status | grep "^##" | head -n 1 | sed -E "s/^##\s*([a-ZA-Z0-9\-\_]*)(\.\.\..*\[)?(ahead )?([0-9]*)(,?\s*behind )?([0-9]*)\]?/\1 \4 \6/g"
 
     local ahead="$(git log @{u}.. --pretty=oneline 2> /dev/null | wc -l | tr -d '[:space:]')"
@@ -145,8 +144,7 @@ prompt_git() {
       local dirty=$(parse_git_dirty)
       if [[ -n $dirty ]]; then
         text_color=yellow
-        local untracked_files=$(echo $git_status | grep "^??")
-        if [[ ! -z $untracked_files ]]; then
+        if [[ -n $(git ls-files --other --exclude-standard :/ 2> /dev/null) ]]; then
           untracked_string="¿"
         fi
       else
@@ -294,6 +292,7 @@ preexec () {
   if [ $len_left -gt $right_start ]; then
     echo -e "${fg[cyan]}${right_cur_time}${fg[default]}"
   else
+
     # move up one line
     echo -e "\033[1A${fg[cyan]}${right_cur_time}${fg[default]}"
   fi
