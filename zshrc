@@ -1,3 +1,6 @@
+# TODO: have the load.sh script update this value to be correct...
+export ZSH_CUSTOM_PATH=~/shellsettings
+
 # If you come from bash you might have to change your $PATH.
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
 
@@ -45,7 +48,7 @@ ZSH_THEME='jalcorn'
 # HIST_STAMPS="mm/dd/yyyy"
 
 # Would you like to use another custom folder than $ZSH/custom?
-ZSH_CUSTOM=~/shellsettings/zsh_custom
+ZSH_CUSTOM=$ZSH_CUSTOM_PATH/zsh_custom
 
 # Which plugins would you like to load? (plugins can be found in ~/.oh-my-zsh/plugins/*)
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
@@ -85,4 +88,4 @@ source $ZSH/oh-my-zsh.sh
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
 ## CUSTOM CRAP ##
-source ~/shellsettings/shellrc
+source $ZSH_CUSTOM_PATH/shellrc

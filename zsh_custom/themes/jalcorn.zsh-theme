@@ -75,6 +75,19 @@ prompt_dir() {
   prompt_segment $DEFAULT_BG blue '%~'
 }
 
+simple_git() {
+  (( $+commands[git] )) || return
+  local PL_BRANCH_CHAR='├'
+  local PL_DETATCHED_CHAR='┌'
+  local head_path=$(git symbolic-ref HEAD 2> /dev/null)
+  local ref
+  if [[ $head_path ]]; then
+    ref="$PL_BRANCH_CHAR$(basename $head_path 2>/dev/null)$diverge"
+  else
+    ref="$PL_DETATCHED_CHAR$(git rev-parse --short HEAD 2> /dev/null)"
+  fi
+  prompt_segment $DEFAULT_BG blue "$ref"
+}
 # Git: branch/detached head, dirty status
 prompt_git() {
   (( $+commands[git] )) || return
@@ -176,4 +189,112 @@ build_prompt() {
   prompt_end
 }
 
-PROMPT='%{%f%b%k%}$(build_prompt)'
+simple_prompt() {
+  RETVAL=$?
+  prompt_status
+  #prompt_time
+  prompt_context
+  prompt_dir
+  simple_git
+  prompt_end
+}
+
+PROMPT='%{%f%b%k%}$(simple_prompt)'
+RPROMPT='%{%f%F{red}%}${DISPLAY_RPROMPT_COMMAND_TIME} %{%f%F{magenta}%}$(date +%H:%M:%S)%{%f%F{default}%}'
+
+###########
+# TODO: cleanup below
+
+setopt prompt_subst # enable command substition in prompt
+
+ASYNC_PROC=0
+
+strlen () {
+   local input_str=$1
+   local invisible='%([BSUbfksu]|([FK]|){*})'
+   local LEN=${#${(S%%)input_str//$~invisible/}}
+   echo -n $LEN
+ }
+
+ export DISPLAY_RPROMPT_COMMAND_TIME=''
+
+ # Necessary for $EPOCHSECONDS, the UNIX time.
+ zmodload zsh/datetime
+
+prompt_cmd() {
+    echo -n '%{%f%b%k%}$(build_prompt)'
+}
+
+TRAPUSR1() {
+    # read from temp file
+    PROMPT="$(cat /tmp/zsh_prompt_$$)"
+
+    # reset proc number
+    ASYNC_PROC=0
+
+    # redisplay
+    zle && zle reset-prompt
+}
+
+josh_last=()
+precmd () {
+   function async() {
+       # save to temp file
+       printf "%s" "$(prompt_cmd)" > "/tmp/zsh_prompt_$$"
+
+       # signal parent
+       kill -s USR1 $$
+   }
+
+   # default prompt values
+   PROMPT='%{%f%b%k%}$(simple_prompt)'
+   RPROMPT='%{%f%F{red}%}${DISPLAY_RPROMPT_COMMAND_TIME} %{%f%F{magenta}%}$(date +%H:%M:%S)%{%f%F{default}%}'
+
+   # kill child if necessary
+   if [[ "${ASYNC_PROC}" != 0 ]]; then
+       kill -s HUP $ASYNC_PROC >/dev/null 2>&1 || :
+   fi
+
+   # start background computation
+   async &!
+   ASYNC_PROC=$!
+
+  if [[ -z $josh_last ]]; then
+ return
+  fi
+
+  local difference=$(( $EPOCHSECONDS - $josh_last ))
+  local base_rprompt='%{%f%F{magenta}%}$(date +%H:%M:%S)%{%f%F{default}%}'
+  if [[ $difference -gt 10 ]]; then
+ DISPLAY_RPROMPT_COMMAND_TIME="∆${difference}s"
+  else
+ DISPLAY_RPROMPT_COMMAND_TIME=''
+  fi
+
+  josh_last=()
+}
+
+preexec () {
+  ####
+  josh_last=$EPOCHSECONDS
+  ####
+
+  local cur_time=$(date +"%H:%M:%S•")
+  local len_right=$(strlen $cur_time)
+  local len_r_prompt=$(strlen $RPROMPT)
+  local right_start=$(($COLUMNS - $len_right - 1))
+
+  local len_cmd=$(strlen $@)
+  local cleaned_prompt='$(sed -E "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g" <<< ${(S%%)PROMPT//$~invisible/})'
+  local len_prompt=$(strlen $cleaned_prompt)
+  local len_left=$(($len_cmd + $len_prompt))
+
+  local right_cur_time="\033[${right_start}C ${cur_time}"
+
+  if [ $len_left -gt $right_start ]; then
+    echo -e "${fg[cyan]}${right_cur_time}${fg[default]}"
+  else
+    # move up one line
+    echo -e "\033[1A${fg[cyan]}${right_cur_time}${fg[default]}"
+  fi
+}
