@@ -86,7 +86,7 @@ simple_git() {
   else
     ref="$PL_DETATCHED_CHAR$(git rev-parse --short HEAD 2> /dev/null)"
   fi
-  prompt_segment $DEFAULT_BG blue "$ref"
+  prompt_segment $DEFAULT_BG magenta "$ref"
 }
 # Git: branch/detached head, dirty status
 prompt_git() {
