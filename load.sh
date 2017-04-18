@@ -34,6 +34,7 @@ function copy_config_file {
   fi
 }
 
+copy_config_file "vimrc"
 copy_config_file "customrc"
 copy_config_file "zshrc"
 
