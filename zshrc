@@ -1,5 +1,5 @@
-# TODO: have the load.sh script update this value to be correct...
-export ZSH_CUSTOM_PATH=~/shellsettings
+source ~/.pre_customrc
+export ZSH_CUSTOM_PATH=$SCRIPTS_PATH
 
 # If you come from bash you might have to change your $PATH.
 # export PATH=$HOME/bin:/usr/local/bin:$PATH

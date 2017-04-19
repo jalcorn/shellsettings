@@ -1,6 +1,6 @@
 # Common shell file to source
 
-function cur_git_branch {
+cur_git_branch() {
   local git_branch
   if [ -n "$ZSH_VERSION" ]; then
     # assume Zsh
@@ -13,14 +13,17 @@ function cur_git_branch {
   echo -n $git_branch
 }
 
-function source_custom_file {
-  local local_file=~/.customrc
+source_custom_file() {
+  local local_file=$1
   if [ -f $local_file ]; then
     source $local_file
   else
     echo "Warning: Can't find local file: $local_file"
   fi
 }
+
+# source pre custom
+source_custom_file ~/.pre_customrc
 
 if [ -n "$ZSH_VERSION" ]; then
   # assume Zsh
@@ -71,4 +74,4 @@ export VISUAL=vim
 export EDITOR="$VISUAL"
 
 # Custom stuff
-source_custom_file
+source_custom_file ~/.customrc

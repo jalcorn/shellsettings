@@ -8,4 +8,6 @@ elif [ -n "$BASH_VERSION" ]; then
   echo -n
 fi
 
+export XDG_CONFIG_HOME="$SCRIPTS_PATH"
 export DEFAULT_USER="josh"
+

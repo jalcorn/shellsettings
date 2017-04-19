@@ -14,9 +14,13 @@ function copy_config_file {
     local destination_file=~/.$file_name
     if [[ ! -f $source_file ]]; then
       echo "Cannot find $source_file"
-    elif [[ ! -f $destination_file ]]; then
+    elif [[ ! -f $destination_file || -n $2 ]]; then
       echo "Creating $destination_file file"
       cp $source_file $destination_file
+
+      if [[ -n $2 ]]; then
+        echo $2 >> $destination_file
+      fi
     elif [[ $(diff $source_file $destination_file | wc -l | tr -d '[:space:]') -gt 0 ]]; then
       read -p "Replace $destination_file with default? " -n 1 -r
       echo
@@ -35,7 +39,8 @@ function copy_config_file {
 }
 
 copy_config_file "vimrc"
-copy_config_file "customrc"
+copy_config_file "customrc" 
 copy_config_file "zshrc"
+copy_config_file "pre_customrc" "export SCRIPTS_PATH=$SCRIPT_PATH"
 
 # TODO: add default bashrc
