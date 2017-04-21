@@ -1,38 +1,33 @@
+# Show line numbers on right
 hook global WinCreate .* %{addhl number_lines}
+
+# Hide clippy
 set global ui_options ncurses_assistant=none
 
+# Add scrolling bounds
+set global scrolloff 9,5
+
+
+### ##### #####
+
+
+# This should add surround functionality (pressing ,s<surround with char>)
 def surround %!on-key %@exec %sh&
+  open="$kak_key"
+  close="$kak_key"
+
   case "$kak_key" in
-  "<lt>") key="<" ;;
-  "<gt>") key=">" ;;
-  "<space>") key=" " ;;
-  "<tab>") key="\t" ;;
-  \<*\>) echo ":echo<space>no<ret>"; exit 1 ;;
-  *) key="$kak_key" ;;
+    ')') open='(' ;;
+    ']') open='[' ;;
+    '}') open='{' ;;
+    '<gt>') open='<lt>' ;;
+    '(') close=')' ;;
+    '[') close=']' ;;
+    '{') close='}' ;;
+    '<lt>') close='<gt>' ;;
   esac
 
-  open="$key"
-  close="$key"
-  case "$key" in
-  ")") open="(" ;;
-  "]") open="[" ;;
-  "}") open="{" ;;
-  ">") open="<" ;;
-  "(") open="( "; close=" )" ;;
-  "[") open="[ "; close=" ]" ;;
-  "{") open="{ "; close=" }" ;;
-  "<") open="< "; close=" >" ;;
-  esac
-
-  epilogue=${close//?/H}
-
-  open=${open/</<lt>}
-  close=${close/>/<gt>}
-
-  open=${open/ /<space>}
-  close=${close/ /<space>}
-  
-  echo "i$open<esc>a$close<esc>$epilogue"
+  echo "i$open<esc>a$close<esc>"
 &@!
 
 def delete-surround %!on-key %@exec %sh&
@@ -40,3 +35,4 @@ def delete-surround %!on-key %@exec %sh&
 &@!
 
 map global user s ":surround<ret>"
+map global user d ":delete-surround<ret>"

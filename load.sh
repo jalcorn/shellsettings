@@ -42,5 +42,6 @@ copy_config_file "vimrc"
 copy_config_file "customrc" 
 copy_config_file "zshrc"
 copy_config_file "pre_customrc" "export SCRIPTS_PATH=$SCRIPT_PATH"
+copy_config_file "tmux.conf"
 
 # TODO: add default bashrc
