@@ -1,5 +1,6 @@
-# Show line numbers on right
-hook global WinCreate .* %{addhl number_lines}
+# Show line numbers on left
+hook global WinCreate .* %{addhl number_lines -hlcursor -separator '|'}
+set-face LineNumberCursor white,black
 
 # Hide clippy
 set global ui_options ncurses_assistant=none
@@ -7,9 +8,15 @@ set global ui_options ncurses_assistant=none
 # Add scrolling bounds
 set global scrolloff 9,5
 
+# Set tab width
+set-option global tabstop 4 
+
+# Show whitespace characters
+hook global WinCreate .* %{addhl show_whitespaces}
+set-face Whitespace black+d
 
 ### ##### #####
-
+set-face PrimaryCursor yellow+r
 
 # This should add surround functionality (pressing ,s<surround with char>)
 def surround %!on-key %@exec %sh&
