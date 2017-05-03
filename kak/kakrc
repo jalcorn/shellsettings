@@ -1,6 +1,11 @@
+#hook global NormalKey .* %{ %sh{
+#  selection_count=$(echo $kak_selections_desc | awk -F : '{ print NF }')
+#    [ $selection_count = 1 ] || echo exec '<c-s>'
+#}}
+
 # Show line numbers on left
 hook global WinCreate .* %{addhl number_lines -hlcursor -separator '|'}
-set-face LineNumberCursor white,black
+set-face LineNumberCursor white,black+b
 
 # Hide clippy
 set global ui_options ncurses_assistant=none
