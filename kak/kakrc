@@ -1,10 +1,10 @@
-#hook global NormalKey .* %{ %sh{
-#  selection_count=$(echo $kak_selections_desc | awk -F : '{ print NF }')
+#bash{
+#  selection_count=$(echo $kak_selections_desc | awk -F : '{ print NF ')
 #    [ $selection_count = 1 ] || echo exec '<c-s>'
 #}}
 
 # Show line numbers on left
-hook global WinCreate .* %{addhl number_lines -hlcursor -separator '|'}
+addhl global number_lines -hlcursor -separator '|'
 set-face LineNumberCursor white,black+b
 
 # Hide clippy
@@ -17,8 +17,8 @@ set global scrolloff 9,5
 set-option global tabstop 4 
 
 # Show whitespace characters
-hook global WinCreate .* %{addhl show_whitespaces}
-set-face Whitespace black+d
+addhl global show_whitespaces
+set-face Whitespace rgb:969696+d
 
 ### ##### #####
 set-face PrimaryCursor yellow+r
@@ -46,5 +46,5 @@ def delete-surround %!on-key %@exec %sh&
   echo "<a-a>${kak_key}s${kak_key}<ret>d"
 &@!
 
-map global user s ":surround<ret>"
-map global user d ":delete-surround<ret>"
+map global user s ":surround<ret>" -docstring "surround"
+map global user d ":delete-surround<ret>" -docstring "delete-surround"
