@@ -1,7 +1,4 @@
-#bash{
-#  selection_count=$(echo $kak_selections_desc | awk -F : '{ print NF ')
-#    [ $selection_count = 1 ] || echo exec '<c-s>'
-#}}
+# Kakoune
 
 # Show line numbers on left
 addhl global number_lines -hlcursor -separator '|'
@@ -24,27 +21,47 @@ set-face Whitespace rgb:969696+d
 set-face PrimaryCursor yellow+r
 
 # This should add surround functionality (pressing ,s<surround with char>)
-def surround %!on-key %@exec %sh&
-  open="$kak_key"
-  close="$kak_key"
+def -hidden surround-key "%!info -title 'surround with' 'b,(,):  parenthesis block
+B,{,}: braces block
+r,[,]: brackets block
+a,<lt>,<gt>: angle block
+\",Q: double quote string
+\',q: single quote string
+`,g: grave quote string
+c: custom object desc'!
+%!on-key %@exec %sh&
+    code=0
+    case $kak_key in
+        'b'|'('|')')       first='(' last=')';;
+        'B'|'{'|'}')       first='{' last='}';;
+        'r'|'['|']')       first='[' last=']';;
+        'a'|'<lt>'|'<gt>') first='<lt>lt<gt>' last='<lt>gt<gt>';;
+        '\"'|'Q')          first=\"'\\"'\" last=\"'\\"'\";;
+        \"'\"|'q')         first=\"\\"'\\"\" last=\"\\"'\\"\";;
+        '`'|'g')           first='`' last='`';;
+        'c')               code=2;;
+        *)                 code=9;;
+    esac
 
-  case "$kak_key" in
-    ')') open='(' ;;
-    ']') open='[' ;;
-    '}') open='{' ;;
-    '<gt>') open='<lt>' ;;
-    '(') close=')' ;;
-    '[') close=']' ;;
-    '{') close='}' ;;
-    '<lt>') close='<gt>' ;;
-  esac
+    case $code in
+        0) echo \":surround\ $first\ $last<ret>\";;
+        2) echo \":surround\ \";;
+        *) echo \"<esc>\";;
+    esac
+&@!"
 
-  echo "i$open<esc>a$close<esc>"
-&@!
+def -params 1..2 -docstring \
+"surround <before> [<after>]: Add <before> before selections
+                             If <after> is provided: add <after> after selections
+                                               else: add <before> after selections" \
+surround %@exec -draft %sh&
+    end=$2
+    if [ -z "$2" ]
+        then
+            end=$1
+    fi
+    printf '%s' "%{i$1<esc>a$end<esc>}"
+&@
 
-def delete-surround %!on-key %@exec %sh&
-  echo "<a-a>${kak_key}s${kak_key}<ret>d"
-&@!
-
-map global user s ":surround<ret>" -docstring "surround"
-map global user d ":delete-surround<ret>" -docstring "delete-surround"
+map global user s ":surround-key<ret>" -docstring "surround selection"
+map global user d "i<backspace><esc>a<del><esc>" -docstring "delete surrounding chars"
