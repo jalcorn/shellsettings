@@ -90,16 +90,18 @@ simple_git() {
   (( $+commands[git] )) || return
 
   if $(git rev-parse --is-inside-work-tree >/dev/null 2>&1); then
-    local head_path=$(git symbolic-ref HEAD 2> /dev/null)
+    local head_path
+    head_path=$(git symbolic-ref HEAD 2> /dev/null)
     local ref
-    if [[ $head_path ]]; then
-      ref="$JA_GIT_BRANCH$(basename $head_path 2>/dev/null)$diverge"
+    if [[ "$head_path" ]]; then
+      ref="$JA_GIT_BRANCH$(basename "$head_path" 2>/dev/null)$diverge"
     else
       ref="$JA_GIT_DETATCHED$(git rev-parse --short HEAD 2> /dev/null)"
     fi
-    prompt_segment $JA_DEFAULT_BG magenta "$ref"
+    prompt_segment "$JA_DEFAULT_BG" magenta "$ref"
   fi
 }
+
 # Git: branch/detached head, dirty status
 prompt_git() {
   (( $+commands[git] )) || return
@@ -227,6 +229,7 @@ TRAPUSR1() {
 }
 
 COMMAND_START_TIME=()
+
 precmd () {
   function prompt_cmd() {
     echo -n '%{%f%b%k%}$(build_prompt)'
