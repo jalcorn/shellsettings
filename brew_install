@@ -1,0 +1,23 @@
+#!/bin/sh
+
+read -p "Install Brew?" -n 1 -r
+echo
+if [[ $REPLY =~ ^[Yy]$ ]]; then
+  echo "  Installing Brew..."
+  /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+
+  echo "  Installing Cask..."
+  brew tap caskroom/cask
+else
+  echo "  Skip Brew Install"
+fi
+
+# Terminal
+brew install tmux
+brew cask install iTerm2
+
+# Kakoune
+brew install ncurses
+brew install --HEAD https://raw.githubusercontent.com/mawww/kakoune/master/contrib/kakoune.rb
+# Update with -> brew upgrade --fetch-HEAD kakoune
+
