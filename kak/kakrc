@@ -1,8 +1,8 @@
 # Kakoune
 
 # Show line numbers on left
-addhl global number_lines -hlcursor -separator '|'
-set-face LineNumberCursor white,black+b
+addhl global number_lines -hlcursor -separator '│'
+set-face global LineNumberCursor white,black+b
 
 # Hide clippy
 set global ui_options ncurses_assistant=none
@@ -15,10 +15,10 @@ set-option global tabstop 4
 
 # Show whitespace characters
 addhl global show_whitespaces
-set-face Whitespace rgb:969696+d
+set-face global Whitespace rgb:969696+d
 
 ### ##### #####
-set-face PrimaryCursor yellow+r
+set-face global PrimaryCursor yellow+r
 
 # This should add surround functionality (pressing ,s<surround with char>)
 def -hidden surround-key "%!info -title 'surround with' 'b,(,):  parenthesis block
