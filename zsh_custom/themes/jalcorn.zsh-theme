@@ -91,10 +91,10 @@ simple_git() {
 
   if $(git rev-parse --is-inside-work-tree >/dev/null 2>&1); then
     local head_path
-    head_path=$(git symbolic-ref HEAD 2> /dev/null)
+    head_path=$(git symbolic-ref --short HEAD 2> /dev/null)
     local ref
     if [[ "$head_path" ]]; then
-      ref="$JA_GIT_BRANCH$(basename "$head_path" 2>/dev/null)$diverge"
+      ref="$JA_GIT_BRANCH$head_path$diverge"
     else
       ref="$JA_GIT_DETATCHED$(git rev-parse --short HEAD 2> /dev/null)"
     fi
@@ -128,10 +128,10 @@ prompt_git() {
       fi
     fi
 
-    local head_path=$(git symbolic-ref HEAD 2> /dev/null)
+    local head_path=$(git symbolic-ref --short HEAD 2> /dev/null)
     local ref
     if [[ $head_path ]]; then
-      ref="$JA_GIT_BRANCH$(basename $head_path 2>/dev/null)$diverge"
+      ref="$JA_GIT_BRANCH$head_path$diverge"
     else
       ref="$JA_GIT_DETATCHED$(git rev-parse --short HEAD 2> /dev/null)"
     fi
