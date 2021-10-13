@@ -7,17 +7,15 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
   /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 
   echo "  Installing Cask..."
-  brew tap caskroom/cask
+  brew tap homebrew/cask
 else
   echo "  Skip Brew Install"
 fi
 
 # Terminal
 brew install tmux
-brew cask install iTerm2
+brew install iTerm2
 
-# Kakoune
-brew install ncurses
-brew install --HEAD https://raw.githubusercontent.com/mawww/kakoune/master/contrib/kakoune.rb
-# Update with -> brew upgrade --fetch-HEAD kakoune
+# Kakoune text editor
+brew install kakoune
 
