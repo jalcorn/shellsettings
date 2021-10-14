@@ -1,11 +1,11 @@
-# Kakoune
+### Kakoune
 
 # Show line numbers on left
-addhl global number_lines -hlcursor -separator '│'
+addhl global/ number-lines -hlcursor -separator '│'
 set-face global LineNumberCursor white,black+b
 
 # Hide clippy
-set global ui_options ncurses_assistant=none
+set global ui_options terminal_assistant=none
 
 # Add scrolling bounds
 set global scrolloff 9,5
@@ -14,41 +14,51 @@ set global scrolloff 9,5
 set-option global tabstop 4 
 
 # Show whitespace characters
-addhl global show_whitespaces
+addhl global/ show-whitespaces
 set-face global Whitespace rgb:969696+d
+
+# Show matching char
+addhl global/ show-matching
+
+# Remove annoying comment kept on new line
+set-option global disabled_hooks '.*-insert'
+
+# Clipboard management mappings
+map -docstring "yank the selection into the clipboard" global user y "<a-|> pbcopy<ret>"
+map -docstring "paste the clipboard" global user p "<a-!> pbpaste<ret>"
 
 ### ##### #####
 set-face global PrimaryCursor yellow+r
 
-# This should add surround functionality (pressing ,s<surround with char>)
-def -hidden surround-key "%!info -title 'surround with' 'b,(,):  parenthesis block
-B,{,}: braces block
-r,[,]: brackets block
-a,<lt>,<gt>: angle block
-\",Q: double quote string
-\',q: single quote string
-`,g: grave quote string
-c: custom object desc'!
-%!on-key %@exec %sh&
-    code=0
-    case $kak_key in
-        'b'|'('|')')       first='(' last=')';;
-        'B'|'{'|'}')       first='{' last='}';;
-        'r'|'['|']')       first='[' last=']';;
-        'a'|'<lt>'|'<gt>') first='<lt>lt<gt>' last='<lt>gt<gt>';;
-        '\"'|'Q')          first=\"'\\"'\" last=\"'\\"'\";;
-        \"'\"|'q')         first=\"\\"'\\"\" last=\"\\"'\\"\";;
-        '`'|'g')           first='`' last='`';;
-        'c')               code=2;;
-        *)                 code=9;;
-    esac
-
-    case $code in
-        0) echo \":surround\ $first\ $last<ret>\";;
-        2) echo \":surround\ \";;
-        *) echo \"<esc>\";;
-    esac
-&@!"
+## This should add surround functionality (pressing ,s<surround with char>)
+#def -hidden surround-key %!info -title 'surround with' 'b,(,):  parenthesis block
+#B,{,}: braces block
+#r,[,]: brackets block
+#a,<lt>,<gt>: angle block
+#\",Q: double quote string
+#\',q: single quote string
+#`,g: grave quote string
+#c: custom object desc'!
+#%!on-key %@exec %sh&
+#    code=0
+#    case $kak_key in
+#        'b'|'('|')')       first='(' last=')';;
+#        'B'|'{'|'}')       first='{' last='}';;
+#        'r'|'['|']')       first='[' last=']';;
+#        'a'|'<lt>'|'<gt>') first='<lt>lt<gt>' last='<lt>gt<gt>';;
+#        '\"'|'Q')          first=\"'\\"'\" last=\"'\\"'\";;
+#        \"'\"|'q')         first=\"\\"'\\"\" last=\"\\"'\\"\";;
+#        '`'|'g')           first='`' last='`';;
+#        'c')               code=2;;
+#        *)                 code=9;;
+#    esac
+#
+#    case $code in
+#        0) echo \":surround\ $first\ $last<ret>\";;
+#        2) echo \":surround\ \";;
+#        *) echo \"<esc>\";;
+#    esac
+#&@!
 
 def -params 1..2 -docstring \
 "surround <before> [<after>]: Add <before> before selections
