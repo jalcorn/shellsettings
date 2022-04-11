@@ -56,7 +56,7 @@ on-key %@ eval %sh&
     case $code in
         0) echo "execute-keys :surround<space>$first<space>$last<ret>";;
         2) echo "execute-keys :surround";;
-        *) echo "execute-keys <esc>";;
+        *) echo "execute-keys :nop<ret>";;
     esac
 &@!
 
